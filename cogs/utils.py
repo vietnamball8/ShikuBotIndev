@@ -26,7 +26,6 @@ def is_owner_check(interaction: discord.Interaction) -> bool:
 class HelpDropdown(discord.ui.Select):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.weather_api_key = os.getenv("WEATHER_API_KEY")
         options = []
         
         for name, cog in bot.cogs.items():
@@ -62,6 +61,7 @@ class HelpView(discord.ui.View):
 class Utils(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.weather_api_key = os.getenv("WEATHER_API_KEY")
         
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
