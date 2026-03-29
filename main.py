@@ -227,6 +227,7 @@ async def on_message(message):
             await message.reply("Arrr! The engine is stalled! Try again in a bit, matey.")
 
 # Run client
+webserver.keep_alive()
 client.run(TOKEN)
 
 # Credits:
