@@ -7,6 +7,7 @@
 # Libraries
 # ------------------------------------
 import os
+import webserver
 import discord
 import datetime
 import random
@@ -34,7 +35,7 @@ if TOKEN is None:
     print("TOKEN_ERROR: Token not found!")
     exit() 
 else:
-    print("Token loaded successfully.")
+    print("[DEBUG]: Token loaded successfully.")
 # ------------------------------------
 
 # Setup loggings
