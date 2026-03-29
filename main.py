@@ -11,6 +11,7 @@ import discord
 import datetime
 import random
 import time
+import logging
 from groq import Groq
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
@@ -36,6 +37,10 @@ else:
     print("Token loaded successfully.")
 # ------------------------------------
 
+# Setup loggings
+logging.basicConfig(level=logging.INFO)
+# ------------------------------------
+
 # Define class Client
 class Client(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -48,7 +53,7 @@ class Client(commands.Bot):
         for filename in os.listdir('./cogs'):
             if filename.endswith('.py'):
                 await self.load_extension(f'cogs.{filename[:-3]}')
-                print(f'Loaded: {filename}')
+                print(f'[DEBUG]: Loaded: {filename}')
 
     async def on_ready(self):
         print(f"Logged on as {self.user}!")
@@ -57,10 +62,10 @@ class Client(commands.Bot):
         try:
             guild = discord.Object(id=GUILD_ID)
             synced = await self.tree.sync(guild=guild)
-            print(f"Synced {len(synced)} commands to guild {guild.id}")
+            print(f"[DEBUG]: Synced {len(synced)} commands to guild {guild.id}")
             
         except Exception as e:
-            print(f"SYNC_ERROR: Syncing commands failed: {e}")
+            print(f"[DEBUG]: SYNC_ERROR: Syncing commands failed: {e}")
 
     # IMPORTANT: This only logs messages TEMPORARILY not permanent, your message sent DM is not stored in any way or databases.
     async def on_message(self, message):
@@ -68,9 +73,9 @@ class Client(commands.Bot):
             return
         
         if message.guild is None:
-            print(f"DM received from {message.author}: {message.content}")
+            print(f"[DEBUG]: DM received from {message.author}: {message.content}")
         else:
-            print(f"Message from {message.author}: {message.content}")
+            print(f"[DEBUG]: Message from {message.author}: {message.content}")
 
     @tasks.loop(seconds=10)
     async def cycle_statuses(self):
@@ -113,10 +118,10 @@ async def on_member_join(member):
         try:
             channel = await client.fetch_channel(WELCOME_CHANNEL_ID)
         except discord.NotFound:
-            print(f"INVALID_ID_ERROR: {WELCOME_CHANNEL_ID} not found.")
+            print(f"[DEBUG]: INVALID_ID_ERROR: {WELCOME_CHANNEL_ID} not found.")
             return
         except discord.Forbidden:
-            print(f"PERMS_ERROR: Bot lacks permission to see channel {WELCOME_CHANNEL_ID}.")
+            print(f"[DEBUG]: PERMS_ERROR: Bot lacks permission to see channel {WELCOME_CHANNEL_ID}.")
             return
         
     try:
@@ -158,7 +163,7 @@ async def on_member_remove(member):
         try:
             channel = await client.fetch_channel(WELCOME_CHANNEL_ID)
         except Exception as e:
-            print(f"MISSING_ERROR: Could not find channel {WELCOME_CHANNEL_ID}: {e}")
+            print(f"[DEBUG]: MISSING_ERROR: Could not find channel {WELCOME_CHANNEL_ID}: {e}")
             return
     
     goodbye_messages = [f"Goodbye, **{member.name}**!", f"Farewell, **{member.name}**!", f"It was a pleasure, **{member.name}**!",
@@ -192,7 +197,7 @@ async def on_message(message):
         user_id = message.author.id
         current_time = time.time()
         
-        print(f"DEBUG: Checking cooldown for {user_id}. Current dict: {cooldowns}")
+        print(f"[DEBUG]: Checking cooldown for {user_id}. Current dict: {cooldowns}")
         
         if user_id in cooldowns:
             time_passed = current_time - cooldowns[user_id]
@@ -218,7 +223,7 @@ async def on_message(message):
             await message.reply(pirate_response)
 
         except Exception as e:
-            print(f"AI_ERROR: {e}")
+            print(f"[DEBUG]: AI_ERROR: {e}")
             await message.reply("Arrr! The engine is stalled! Try again in a bit, matey.")
 
 # Run client
