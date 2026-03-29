@@ -7,3 +7,4 @@ aiosqlite
 aiohttp
 requests
 deep-translator
+psycopg2-binary
