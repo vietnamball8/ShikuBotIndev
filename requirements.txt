@@ -1,0 +1,9 @@
+discord.py
+groq
+python-dotenv
+easy-pil
+Flask
+aiosqlite
+aiohttp
+requests
+deep-translator
