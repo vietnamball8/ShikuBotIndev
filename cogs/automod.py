@@ -5,7 +5,7 @@ import discord
 import os
 import aiosqlite
 import datetime
-import psycorg2
+import psycopg2
 from dotenv import load_dotenv
 from discord.ext import commands, tasks
 from discord import app_commands
