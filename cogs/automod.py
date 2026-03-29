@@ -30,28 +30,34 @@ class AutoMod(commands.Cog):
         return psycopg2.connect(self.db_url)
         
     async def cog_load(self):
-        async with aiosqlite.connect(self.db_name) as db:
-            await db.execute('''
-                CREATE TABLE IF NOT EXISTS warns (
-                    warn_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id INTEGER,
-                    guild_id INTEGER,
-                    moderator_id INTEGER,
-                    reason TEXT,
-                    timestamp TEXT
-                )
-            ''')
-            await db.execute('''
-                CREATE TABLE IF NOT EXISTS tempbans (
-                    user_id INTEGER,
-                    guild_id INTEGER,
-                    unban_time TEXT
-                )
-            ''')
-            await db.commit()
+        try:
+            conn = psycopg2.connect(self.db_url)
+            cur = conn.cursor()
             
-    def cog_unload(self):
-        self.check_tempbans.cancel()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS blocked_words (
+                    id SERIAL PRIMARY KEY,
+                    guild_id BIGINT,
+                    word TEXT
+                );
+            """)
+            
+            conn.commit()
+            cur.close()
+            conn.close()
+            print("[DEBUG]: AutoMod Database linked successfully!")
+        except Exception as e:
+            print(f"[DEBUG]: LINK_ERROR: {e}")
+            
+    async def cog_unload(self):
+        try:
+            if hasattr(self, 'conn') and self.conn:
+                self.conn.close()
+                print("Closed Supabase connection for AutoMod.")
+            
+            print("[DEBUG]: AutoMod Cog has been unloaded.")
+        except Exception as e:
+            print(f"[DEBUG]: UNLOAD_ERROR: {e}")
             
     @tasks.loop(minutes=1)
     async def check_tempbans(self):
