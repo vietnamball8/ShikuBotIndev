@@ -356,7 +356,7 @@ class Utils(commands.Cog):
     async def weather(self, interaction: discord.Interaction, city: str):
         await interaction.response.defer()
 
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={self.api_key}&units=metric"
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={self.weather_api_key}&units=metric"
 
         try:
             response = requests.get(url).json()
