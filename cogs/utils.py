@@ -14,7 +14,6 @@ from easy_pil import Editor, load_image_async, Font
 load_dotenv()
 GUILD_ID = int(os.getenv("GUILD_ID"))
 LOGGING_OWNER_ID = int(os.getenv("OWNER_ID"))
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 WELCOME_CHANNEL_ID = os.getenv("WELCOME_CHANNEL_ID")
 
 def is_owner_check(interaction: discord.Interaction) -> bool:
@@ -27,7 +26,7 @@ def is_owner_check(interaction: discord.Interaction) -> bool:
 class HelpDropdown(discord.ui.Select):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.weather_api_key = WEATHER_API_KEY
+        self.weather_api_key = os.getenv("WEATHER_API_KEY")
         options = []
         
         for name, cog in bot.cogs.items():
