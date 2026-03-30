@@ -58,6 +58,9 @@ class AutoMod(commands.Cog):
             print("[DEBUG]: AutoMod Cog has been unloaded.")
         except Exception as e:
             print(f"[DEBUG]: UNLOAD_ERROR: {e}")
+
+    def get_db_conn(self):
+        return psycopg2.connect(os.getenv("DATABASE_URL"))
             
     @tasks.loop(minutes=1)
     async def check_tempbans(self):
