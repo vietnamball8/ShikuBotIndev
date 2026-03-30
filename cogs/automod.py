@@ -149,8 +149,8 @@ class AutoMod(commands.Cog):
         else:
             await interaction.response.send_message(f"Slowmode set to **{seconds}** seconds.")
             
-    @app_commands.command(name="warn", description="Give a formal warning to a member")
-    @app_commands.guilds(GUILD_ID) # Replace with your GUILD_ID
+    @app_commands.command(name="warn", description="Give a warning to a member")
+    @app_commands.guilds(GUILD_ID)
     @app_commands.describe(member="User to warn", reason="Reason to warn")
     @app_commands.checks.has_permissions(moderate_members=True)
     async def warn(self, interaction: discord.Interaction, member: discord.Member, reason: str):
@@ -225,7 +225,7 @@ class AutoMod(commands.Cog):
         )
         
     @app_commands.command(name="warnings", description="Check how many warnings a user has")
-    @app_commands.guilds(GUILD_ID) # Use your Guild ID
+    @app_commands.guilds(GUILD_ID)
     @app_commands.describe(member="The member to check")
     async def warnings(self, interaction: discord.Interaction, member: discord.Member):
         await interaction.response.defer()
