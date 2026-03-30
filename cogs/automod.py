@@ -181,7 +181,7 @@ class AutoMod(commands.Cog):
             cur.close()
             conn.close()
         except Exception as e:
-            print(f"[DEBUG]: DB_ERROR: {e}")
+            print(f"[DEBUG]: DB_ERROR: {e}", flush=True)
             return await interaction.followup.send("DB_ERROR: Could not save warning.")
 
         # 3. Punishment Logic
