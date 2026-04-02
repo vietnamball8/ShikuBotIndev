@@ -82,6 +82,23 @@ class Mafia(commands.Cog):
         await interaction.followup.send("Roles have been DM'd. The city falls silent...")
 
         await self.start_night_phase(interaction, mafia_id)
+
+    @app_commands.command(name="mafia_leave", description="Leave the game lobby")
+    @app_commands.guilds(GUILD_ID)
+    async def leave(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True) 
+
+        game = self.get_game(interaction.guild.id)
+        
+        if game["phase"] != "lobby":
+            return await interaction.followup.send("You can't leave now, the game has already started!", ephemeral=True)
+        
+        if interaction.user.id not in game["players"]:
+            return await interaction.followup.send("You aren't even in the lobby!", ephemeral=True)
+
+        game["players"].remove(interaction.user.id)
+        
+        await interaction.followup.send(f"{interaction.user.display_name} has left the lobby. (Total: {len(game['players'])})")
         
     async def start_night_phase(self, interaction, mafia_id):
         game = self.get_game(interaction.guild.id)
