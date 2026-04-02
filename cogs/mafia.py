@@ -45,6 +45,7 @@ class Mafia(commands.Cog):
         return self.games[guild_id]
     
     @app_commands.command(name="mafia_join", description="Join the mafia game lobby")
+    @app_commands.guilds(GUILD_ID)
     async def join(self, interaction: discord.Interaction):
         game = self.get_game(interaction.guild.id)
         
@@ -58,6 +59,7 @@ class Mafia(commands.Cog):
         await interaction.response.send_message(f"{interaction.user.display_name} joined! (Total: {len(game['players'])})")
         
     @app_commands.command(name="mafia_start", description="Assign roles and start the night")
+    @app_commands.guilds(GUILD_ID)
     async def start(self, interaction: discord.Interaction):
         game = self.get_game(interaction.guild.id)
         
