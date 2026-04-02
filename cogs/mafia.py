@@ -6,6 +6,9 @@ from discord.ext import commands
 import random
 import asyncio
 
+load_dotenv()
+GUILD_ID = os.getenv('GUILD_ID')
+
 class MafiaKillView(discord.ui.View):
     def __init__(self, players, mafia_id, guild_id, cog):
         super().__init__(timeout=60)
