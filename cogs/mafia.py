@@ -47,24 +47,28 @@ class Mafia(commands.Cog):
     @app_commands.command(name="mafia_join", description="Join the mafia game lobby")
     @app_commands.guilds(GUILD_ID)
     async def join(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        
         game = self.get_game(interaction.guild.id)
         
         if game["phase"] != "lobby":
-            return await interaction.response.send_message("A game is already in progress!", ephemeral=True)
+            return await interaction.followup.send("A game is already in progress!", ephemeral=True)
         
         if interaction.user.id in game["players"]:
-            return await interaction.response.send_message("You are already in the lobby.", ephemeral=True)
+            return await interaction.followup.send("You are already in the lobby.", ephemeral=True)
 
         game["players"].append(interaction.user.id)
-        await interaction.response.send_message(f"{interaction.user.display_name} joined! (Total: {len(game['players'])})")
+        await interaction.followup.send(f"{interaction.user.display_name} joined! (Total: {len(game['players'])})")
         
     @app_commands.command(name="mafia_start", description="Assign roles and start the night")
     @app_commands.guilds(GUILD_ID)
     async def start(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        
         game = self.get_game(interaction.guild.id)
         
         if len(game["players"]) < 3:
-            return await interaction.response.send_message("Need at least 3 players to start!", ephemeral=True)
+            return await interaction.followup.send("Need at least 3 players to start!", ephemeral=True)
 
         players = game["players"].copy()
         random.shuffle(players)
@@ -75,7 +79,7 @@ class Mafia(commands.Cog):
             game["roles"][citizen_id] = "Citizen"
 
         game["phase"] = "night"
-        await interaction.response.send_message("Roles have been DM'd. The city falls silent... 🌙")
+        await interaction.followup.send("Roles have been DM'd. The city falls silent...")
 
         await self.start_night_phase(interaction, mafia_id)
         
