@@ -67,7 +67,7 @@ class Mafia(commands.Cog):
         
         game = self.get_game(interaction.guild.id)
         
-        if len(game["players"]) < 3:
+        if len(game["players"]) < 2:
             return await interaction.followup.send("Need at least 3 players to start!", ephemeral=True)
 
         players = game["players"].copy()
