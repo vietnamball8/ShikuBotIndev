@@ -5,6 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 import random
 import asyncio
+from collections import Counter
 
 load_dotenv()
 GUILD_ID = int(os.getenv('GUILD_ID'))
@@ -28,6 +29,26 @@ class KillButton(discord.ui.Button):
         game["kill_target"] = self.victim_id
         await interaction.response.send_message("Target locked.", ephemeral=True)
         self.view.stop()
+        
+class TownVoteSelect(discord.ui.Select):
+    def __init__(self, players, guild_id, cog):
+        options = [
+            discord.SelectOption(label=f"User {str(p_id)[-4:]}", value=str(p_id))
+            for p_id in players
+        ]
+        super().__init__(placeholder="Choose a suspect to hang...", options=options)
+        self.guild_id = guild_id
+        self.cog = cog
+
+    async def callback(self, interaction: discord.Interaction):
+        game = self.cog.get_game(self.guild_id)
+        game["votes"][interaction.user.id] = int(self.values[0])
+        await interaction.response.send_message(f"You have voted for <@{self.values[0]}>", ephemeral=True)
+
+class TownVoteView(discord.ui.View):
+    def __init__(self, players, guild_id, cog):
+        super().__init__(timeout=60)
+        self.add_item(TownVoteSelect(players, guild_id, cog))
 
 class Mafia(commands.Cog):
     def __init__(self, client):
@@ -104,12 +125,24 @@ class Mafia(commands.Cog):
         game = self.get_game(interaction.guild.id)
         mafia_user = await self.client.fetch_user(mafia_id)
         
+        mafia_embed = discord.Embed(title="You are the MAFIA!",
+                              description="You are the mafia, the one behind all the deaths of the town.",
+                              color=discord.Color.red())
+        
+        mafia_embed.add_field(name="Side",
+                        value="Mafia")
+        mafia_embed.add_field(name="Target/Mission",
+                        value="Your goal is to eliminate all of the villagers in the town and not getting voted.")
+        
         view = MafiaKillView(game["players"], mafia_id, interaction.guild.id, self)
         
         try:
-            await mafia_user.send("**MAFIA:** Who is your target tonight?", view=view)
+            await mafia_user.send(embed=mafia_embed, view=view)
         except discord.Forbidden:
-            await interaction.channel.send(f"Could not DM the Mafia. Turn skipped!")
+            error_embed = discord.Embed(title="Error DM'ing the mafia.",
+                                        description="Could not DM the Mafia. Turn skipped!\nMafia, please turn on DMs or the game will not go as expected.",
+                                        color=discord.Color.red())
+            await interaction.channel.send(embed=error_embed)
 
         await asyncio.sleep(45) 
         await self.start_day_phase(interaction)
@@ -119,14 +152,48 @@ class Mafia(commands.Cog):
         target = game["kill_target"]
 
         if target:
-            await interaction.channel.send(f"**Day Breaks.** The town wakes up, but <@{target}> was found dead! 💀")
+            death_embed = discord.Embed(title="A new day has started!",
+                                    description=f"**Day Breaks.** The town wakes up, but <@{target}> was found dead!",
+                                    color=discord.Color.light_gray())
+            
+            await interaction.channel.send(embed=death_embed)
             if target in game["players"]:
                 game["players"].remove(target)
         else:
-            await interaction.channel.send("**Day Breaks.** It was a quiet night. Everyone is alive.")
+            death_embed = discord.Embed(title="A new day has started!",
+                                    description=f"**Day Breaks.** The town wakes up. No one died!",
+                                    color=discord.Color.gold())
+            
+            await interaction.channel.send(embed=death_embed)
 
         game["kill_target"] = None
         game["phase"] = "day"
+        
+        vote_embed = discord.Embed(title="Voting time", description="Discuss and vote for someone to hang! You have 60 seconds.", color=discord.Color.blue())
+        view = TownVoteView(game["players"], interaction.guild.id, self)
+        await interaction.channel.send(embed=vote_embed, view=view)
+
+        await asyncio.sleep(60)
+        await self.resolve_voting(interaction)
+
+    async def resolve_voting(self, interaction):
+        game = self.get_game(interaction.guild.id)
+        if not game["votes"]:
+            await interaction.channel.send("No one voted. The town remains undecided.")
+            return
+
+        vote_counts = Counter(game["votes"].values())
+        top_target, count = vote_counts.most_common(1)[0]
+
+        await interaction.channel.send(f"The votes are in! <@{top_target}> received {count} votes.")
+        
+        if top_target in game["players"]:
+            game["players"].remove(top_target)
+            role = game["roles"].get(top_target, "Unknown")
+            await interaction.channel.send(f"**The town has hanged <@{top_target}>.** They were a **{role}**!")
+
+        game["phase"] = "night"
+        await interaction.channel.send("Night falls again...")
         
 async def setup(client):
     await client.add_cog(Mafia(client))
