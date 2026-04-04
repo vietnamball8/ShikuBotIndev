@@ -102,7 +102,7 @@ class Mafia(commands.Cog):
         
     async def start_night_phase(self, interaction, mafia_id):
         game = self.get_game(interaction.guild.id)
-        mafia_user = await self.bot.fetch_user(mafia_id)
+        mafia_user = await self.client.fetch_user(mafia_id)
         
         view = MafiaKillView(game["players"], mafia_id, interaction.guild.id, self)
         
@@ -128,5 +128,5 @@ class Mafia(commands.Cog):
         game["kill_target"] = None
         game["phase"] = "day"
         
-async def setup(bot):
-    await bot.add_cog(Mafia(bot))
+async def setup(client):
+    await client.add_cog(Mafia(client))
