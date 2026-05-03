@@ -192,6 +192,8 @@ last_message_id = None
 
 @client.event
 async def on_message(message):
+    global last_message_id
+    
     if message.author == client.user:
         return
 
