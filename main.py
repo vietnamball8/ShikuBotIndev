@@ -187,6 +187,7 @@ async def on_member_remove(member):
 # AI chat
 
 cooldowns = {}
+user_memory = {}
 
 @client.event
 async def on_message(message):
@@ -208,23 +209,36 @@ async def on_message(message):
                 return
             
         cooldowns[user_id] = current_time
-        
+
+        if user_id not in user_memory:
+            user_memory[user_id] = [
+                {"role": "system", "content": "You are Shiku, a funny pirate. Keep responses under 3 sentences."}
+            ]
+
+        user_memory[user_id].append({"role": "user", "content": message.clean_content})
+
+        if len(user_memory[user_id]) > 11:
+            system_prompt = user_memory[user_id][0]
+            recent_history = user_memory[user_id][-10:]
+            user_memory[user_id] = [system_prompt] + recent_history
+
         try:
             completion = client_groq.chat.completions.create(
                 model="llama-3.3-70b-versatile", 
-                messages=[
-                    {"role": "system", "content": "You are Shiku, a funny pirate. Keep responses under 3 sentences."},
-                    {"role": "user", "content": message.clean_content}
-                ],
+                messages=user_memory[user_id], # Sending the whole list!
                 max_tokens=150,
                 temperature=0.7
             )
 
             pirate_response = completion.choices[0].message.content
+
+            user_memory[user_id].append({"role": "assistant", "content": pirate_response})
+            
             await message.reply(pirate_response)
 
         except Exception as e:
             print(f"[DEBUG]: AI_ERROR: {e}")
+            user_memory[user_id].pop() 
             await message.reply("Arrr! The engine is stalled! Try again in a bit, matey.")
 
 # Run client
