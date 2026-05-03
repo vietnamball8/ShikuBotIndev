@@ -188,11 +188,16 @@ async def on_member_remove(member):
 
 cooldowns = {}
 user_memory = {}
+last_message_id = None
 
 @client.event
 async def on_message(message):
     if message.author == client.user:
         return
+
+    if message.id == last_message_id:
+        return
+    last_message_id = message.id
 
     if message.channel.id == AI_CHAT_CHANNEL_ID:
         
