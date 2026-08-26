@@ -77,9 +77,9 @@ class AutoMod(commands.Cog):
                     try:
                         user = await self.client.fetch_user(user_id)
                         await guild.unban(user, reason="Tempban expired.")
-                        print(f"✅ Automatically unbanned {user.name}")
+                        print(f"Automatically unbanned {user.name}")
                     except Exception as e:
-                        print(f"❌ Failed to auto-unban {user_id}: {e}")
+                        print(f"Failed to auto-unban {user_id}: {e}")
 
                 # Remove from database so we don't try to unban them again
                 await db.execute("DELETE FROM tempbans WHERE user_id = ? AND guild_id = ?", (user_id, guild_id))
