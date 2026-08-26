@@ -250,7 +250,7 @@ async def on_message(message):
             user_memory[user_id].pop() 
             await message.reply("Arrr! The engine is stalled! Try again in a bit, matey.")
 
-@client.tree.command(name="shutdown", description="Force the bot to restart", guild=GUILD_ID)
+@client.tree.command(name="shutdown", description="Force the bot to restart", guild=discord.Object(id=int(GUILD_ID)))
 async def shutdown(interaction: discord.Interaction):
     if interaction.user.id == YOUR_USER_ID: # Only YOU can do this
         await interaction.response.send_message("ShikuBot is currently restarting...")
