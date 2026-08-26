@@ -1,5 +1,5 @@
 # ------- ShikuBot -------
-# Built by vietnam8, co-owned by Shiku Gamer.
+# Built by vietnam8.
 # Language: Python
 # Creation date: 03/06/2025 (DD/MM/YYYY format)
 # This bot is the main application of the server The Shiku Gamer
@@ -250,7 +250,7 @@ async def on_message(message):
             user_memory[user_id].pop() 
             await message.reply("Arrr! The engine is stalled! Try again in a bit, matey.")
 
-@client.tree.command(name="shutdown", description="Force the bot to restart")
+@client.tree.command(name="shutdown", description="Force the bot to restart", guild=GUILD_ID)
 async def shutdown(interaction: discord.Interaction):
     if interaction.user.id == YOUR_USER_ID: # Only YOU can do this
         await interaction.response.send_message("ShikuBot is currently restarting...")
