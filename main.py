@@ -233,7 +233,7 @@ async def on_message(message):
 
         try:
             completion = client_groq.chat.completions.create(
-                model="llama-3.1-70b-versatile", 
+                model="llama-3.1-8b-instant", 
                 messages=user_memory[user_id], # Sending the whole list!
                 max_tokens=150,
                 temperature=0.7
@@ -252,11 +252,11 @@ async def on_message(message):
 
 @client.tree.command(name="shutdown", description="Force the bot to restart", guild=discord.Object(id=int(GUILD_ID)))
 async def shutdown(interaction: discord.Interaction):
-    if interaction.user.id == YOUR_USER_ID: # Only YOU can do this
-        await interaction.response.send_message("ShikuBot is currently restarting...")
+    if interaction.user.id == OWNER_ID:
+        await interaction.response.send_message("Restarting ShikuBot...")
         await client.close()
     else:
-        await interaction.response.send_message("Arrr! You're not the captain!", ephemeral=True)
+        await interaction.response.send_message("You do not have the permission to do this command.", ephemeral=True)
 
 # Run client
 webserver.keep_alive()
