@@ -233,7 +233,7 @@ async def on_message(message):
 
         try:
             completion = client_groq.chat.completions.create(
-                model="llama-3.1-8b-instant", 
+                model="llama-3.3-70b-versatile", 
                 messages=user_memory[user_id], # Sending the whole list!
                 max_tokens=150,
                 temperature=0.7
